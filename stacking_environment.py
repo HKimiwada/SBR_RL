@@ -1,3 +1,4 @@
+# stacking_environment.py
 import os
 os.environ['MUJOCO_GL'] = 'egl'  # Headless rendering for DGX-1
 

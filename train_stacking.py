@@ -1,3 +1,4 @@
+# train_stacking.py
 # Use conda environment modern_stacking 
 # use_vision = False: State Mode (Direct Access to all object positions: Faster to train, unrealistic)
 # use_vision = True: Vision Mode (RGB images, slower to train, need CNN, but more realistic)
