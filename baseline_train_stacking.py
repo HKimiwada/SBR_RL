@@ -8,4 +8,6 @@ Criteria for fair baseline:
 
 Baseline Models:
 1. Random Policy (Implemented in test_train_stacking.py)
+2. Soft Actor-Critic (SAC)
+3. Proximal Policy Optimization (PPO)
 """
