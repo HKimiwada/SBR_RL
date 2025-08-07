@@ -1,7 +1,6 @@
 # Sanity Check: Random Policy
 (modern_stacking) hiroki_kimiwada@dgx-1:~/SBR_RL$ python test_train_stacking.py
 Simple Training Loop
-========================================
 ✅ Loaded: stack_3_bricks_features
 ✅ GPU rendering working properly
 🎮 RGBStackingAlternative Environment (GPU Rendering)
