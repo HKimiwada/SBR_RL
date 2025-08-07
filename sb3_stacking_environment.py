@@ -1,5 +1,4 @@
 # sb3_stacking_environment.py (Environment that inherits from gym.Env for StableBaselines3)
-# simple_stacking_env.py - Simplified version that definitely works
 import os
 os.environ['MUJOCO_GL'] = 'egl'
 os.environ['DISPLAY'] = ':0'

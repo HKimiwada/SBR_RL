@@ -1,4 +1,3 @@
-# fixed_stacking_environment.py
 import os
 os.environ['MUJOCO_GL'] = 'egl'  # Headless GPU rendering for DGX-1
 os.environ['DISPLAY'] = ':0'     # Set display for X11 (if using X forwarding)
