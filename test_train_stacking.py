@@ -9,10 +9,9 @@ from rgb_stacking_alternative import RGBStackingAlternative
 import numpy as np
 
 def simple_training_loop():
-    """Simple training loop similar to rgb_stacking RL training"""
+    """Simple training loop"""
     
-    print("🤖 Simple Training Loop")
-    print("Similar to rgb_stacking RL training")
+    print("Simple Training Loop")
     print("=" * 40)
     
     # Create environment
@@ -31,7 +30,7 @@ def simple_training_loop():
         total_reward = 0
         
         for step in range(max_steps):
-            # Simple random policy (replace with your RL algorithm)
+            # Simple random policy
             action = env.sample_random_action() * 0.2  # Small actions
             
             obs, reward, done, info = env.step(action)
