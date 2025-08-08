@@ -54,11 +54,20 @@ class WandbCallback(BaseCallback):
 def make_monitored_env(env_id=0, seed=0):
     """Create a monitored environment for multiprocessing"""
     def _init():
-        env = make_simple_env('stack_3_bricks', max_episode_steps=250)
-        env = Monitor(env)  # Monitor wrapper for episode statistics
-        env.seed(seed + env_id)
+        # Set random seed for this process
+        set_random_seed(seed + env_id)
+        
+        # Create environment
+        env = make_simple_env('stack_3_bricks', max_episode_steps=1500)
+        
+        # Wrap with Monitor for episode statistics
+        env = Monitor(env)
+        
+        # Reset with seed to initialize properly
+        env.reset(seed=seed + env_id)
+        
         return env
-    set_random_seed(seed)
+    
     return _init
 
 class ScaledTrainingConfig:
@@ -67,7 +76,7 @@ class ScaledTrainingConfig:
     def __init__(self):
         # Environment settings
         self.task_variant = 'stack_3_bricks'
-        self.max_episode_steps = 250
+        self.max_episode_steps = 1500
         
         # Parallel training settings - utilize DGX-1's 40 cores
         self.n_envs = 32  # 32 parallel environments
