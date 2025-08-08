@@ -28,7 +28,7 @@ class VideoRenderer:
         print("✅ Model loaded successfully!")
         
         # Create environment for rendering
-        self.env = make_simple_env('stack_3_bricks', max_episode_steps=250)
+        self.env = make_simple_env('stack_3_bricks', max_episode_steps=1500)
         print("✅ Environment created for rendering")
     
     def render_episode(self, episode_num=1, render_size=(640, 480), fps=30, deterministic=True):

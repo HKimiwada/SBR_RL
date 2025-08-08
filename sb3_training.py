@@ -2,7 +2,7 @@ from sb3_stacking_environment import make_simple_env
 from stable_baselines3 import PPO
 
 # Create environment
-env = make_simple_env('stack_3_bricks', max_episode_steps=250)
+env = make_simple_env('stack_3_bricks', max_episode_steps=1500)
 
 # Create model (use CPU for MLP as recommended)
 model = PPO(

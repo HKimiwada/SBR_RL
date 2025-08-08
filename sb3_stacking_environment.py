@@ -15,7 +15,7 @@ class SimpleStackingEnv(gym.Env):
     Simple, clean StableBaselines3 compatible stacking environment
     """
     
-    def __init__(self, task_variant='stack_3_bricks', max_episode_steps=250):
+    def __init__(self, task_variant='stack_3_bricks', max_episode_steps=1500):
         super().__init__()
         
         self.task_name = task_variant
@@ -130,7 +130,7 @@ class SimpleStackingEnv(gym.Env):
 
 
 # Simple factory function
-def make_simple_env(task_variant='stack_3_bricks', max_episode_steps=250):
+def make_simple_env(task_variant='stack_3_bricks', max_episode_steps=1500):
     """Create simple stacking environment"""
     return SimpleStackingEnv(task_variant=task_variant, max_episode_steps=max_episode_steps)
 

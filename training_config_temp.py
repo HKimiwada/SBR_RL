@@ -4,7 +4,7 @@ class ScaledTrainingConfig:
     def __init__(self):
         # Environment settings
         self.task_variant = 'stack_3_bricks'
-        self.max_episode_steps = 250
+        self.max_episode_steps = 1500
         
         # Parallel training settings
         self.n_envs = 8
