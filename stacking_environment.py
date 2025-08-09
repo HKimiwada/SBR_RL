@@ -1,6 +1,6 @@
 import os
-os.environ['MUJOCO_GL'] = 'egl'  # Headless GPU rendering for DGX-1
-os.environ['DISPLAY'] = ':0'     # Set display for X11 (if using X forwarding)
+os.environ['MUJOCO_GL'] = 'egl'  
+os.environ['DISPLAY'] = ':0'     
 
 from dm_control import manipulation
 import numpy as np

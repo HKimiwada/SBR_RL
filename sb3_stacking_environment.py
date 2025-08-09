@@ -13,6 +13,7 @@ from typing import Dict, Any, Tuple, Optional
 class SimpleStackingEnv(gym.Env):
     """
     Simple, clean StableBaselines3 compatible stacking environment
+    WITH FIXED EPISODE LENGTH CONTROL
     """
     
     def __init__(self, task_variant='stack_3_bricks', max_episode_steps=1500):
@@ -31,11 +32,25 @@ class SimpleStackingEnv(gym.Env):
             self.env = manipulation.load(task_variant)
             print(f"✅ Loaded: {task_variant}")
         
+        # IMPORTANT: Override dm_control's episode length
+        # Set a very high internal limit so we control episode termination
+        if hasattr(self.env, '_time_limit'):
+            self.env._time_limit = max_episode_steps * 2  # Set much higher than our limit
+            print(f"🔧 Override dm_control time limit to {self.env._time_limit}")
+        
+        # Try to access and modify the task's time limit if possible
+        try:
+            if hasattr(self.env, '_task') and hasattr(self.env._task, '_time_limit'):
+                self.env._task._time_limit = max_episode_steps * 2
+                print(f"🔧 Override task time limit to {self.env._task._time_limit}")
+        except:
+            print("⚠️  Could not access task time limit directly")
+        
         # Set up spaces
         self._setup_spaces()
         
         self._current_time_step = None
-        print(f"✅ SimpleStackingEnv ready with flattened observations")
+        print(f"✅ SimpleStackingEnv ready with {max_episode_steps} max steps")
     
     def _setup_spaces(self):
         """Setup action and observation spaces"""
@@ -92,13 +107,14 @@ class SimpleStackingEnv(gym.Env):
         
         info = {
             'episode_step': self._episode_step,
-            'success': False
+            'success': False,
+            'max_steps': self.max_episode_steps
         }
         
         return obs, info
     
     def step(self, action):
-        """Step environment"""
+        """Step environment - FIXED to ignore dm_control termination"""
         self._current_time_step = self.env.step(action)
         self._episode_step += 1
         
@@ -106,14 +122,30 @@ class SimpleStackingEnv(gym.Env):
         obs = self._flatten_observation(self._current_time_step.observation)
         
         reward = float(self._current_time_step.reward)
-        terminated = self._current_time_step.last()
-        truncated = self._episode_step >= self.max_episode_steps
+        
+        # CRITICAL FIX: Ignore dm_control's termination, use only our logic
+        # Only terminate early if we detect task success (high reward)
+        task_success = reward > 0.8  # High reward indicates successful stacking
+        
+        # Use our own termination logic
+        terminated = task_success  # Only terminate on clear success
+        truncated = self._episode_step >= self.max_episode_steps  # Truncate at our limit
+        
+        # Calculate success based on reward threshold
+        success = reward > 0.5
         
         info = {
             'episode_step': self._episode_step,
-            'success': reward > 0.5,
-            'discount': float(self._current_time_step.discount)
+            'success': success,
+            'task_success': task_success,
+            'discount': float(self._current_time_step.discount),
+            'dm_control_last': self._current_time_step.last(),  # For debugging
+            'max_steps': self.max_episode_steps
         }
+        
+        # Debug info every 100 steps
+        if self._episode_step % 100 == 0:
+            print(f"Step {self._episode_step}/{self.max_episode_steps}: reward={reward:.3f}, success={success}")
         
         return obs, reward, terminated, truncated, info
     
@@ -131,30 +163,38 @@ class SimpleStackingEnv(gym.Env):
 
 # Simple factory function
 def make_simple_env(task_variant='stack_3_bricks', max_episode_steps=1500):
-    """Create simple stacking environment"""
+    """Create simple stacking environment with proper episode length"""
     return SimpleStackingEnv(task_variant=task_variant, max_episode_steps=max_episode_steps)
 
 
-# Test the simple environment
+# Test the fixed environment
 if __name__ == "__main__":
-    print("🧪 Testing Simple Environment")
+    print("🧪 Testing Fixed Long Episode Environment")
     print("=" * 50)
     
-    # Create environment
-    env = make_simple_env()
+    # Create environment with long episodes
+    env = make_simple_env(max_episode_steps=1500)
     
-    # Test reset
+    # Test full episode
     obs, info = env.reset()
-    print(f"Reset: obs shape = {obs.shape}, info = {info}")
+    print(f"Reset: obs shape = {obs.shape}, max_steps = {info['max_steps']}")
     
-    # Test step
-    action = env.action_space.sample()
-    obs, reward, terminated, truncated, info = env.step(action)
-    print(f"Step: obs shape = {obs.shape}, reward = {reward}")
+    # Run for many steps to test episode length
+    total_reward = 0
+    for step in range(100):  # Test first 100 steps
+        action = env.action_space.sample() * 0.1  # Small actions
+        obs, reward, terminated, truncated, info = env.step(action)
+        total_reward += reward
+        
+        if step % 25 == 0:
+            print(f"Step {step}: reward={reward:.3f}, terminated={terminated}, truncated={truncated}")
+        
+        if terminated or truncated:
+            print(f"Episode ended at step {info['episode_step']}")
+            break
     
-    # Test action and observation spaces
-    print(f"Action space: {env.action_space}")
-    print(f"Observation space: {env.observation_space}")
+    print(f"Total reward after {step+1} steps: {total_reward:.3f}")
+    print(f"Episode should continue until step {env.max_episode_steps}")
     
     env.close()
-    print("✅ Simple environment test passed!")
+    print("✅ Fixed environment test completed!")
